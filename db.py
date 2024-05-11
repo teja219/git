@@ -45,6 +45,27 @@ def update_code(db_file, hashcode, new_code):
     
     conn.close()
 
+def get_code(db_file, snippetId):
+    conn = sqlite3.connect(db_file)
+    cursor = conn.cursor()
+    
+    try:
+        # Execute a SELECT query to retrieve the code for the given snippetId
+        cursor.execute('SELECT code FROM codes WHERE snippetId = ?', (snippetId,))
+        row = cursor.fetchone()
+        
+        if row:
+            return row[0]  # Return the code value if snippetId is found
+        else:
+            print(f"No code found for snippetId '{snippetId}'")
+            return None
+    except sqlite3.Error as e:
+        print(f"Error occurred: {e}")
+        return None
+    finally:
+        conn.close()
+
+
 # Example usage
 if __name__ == '__main__':
     db_file = 'codes.db'
