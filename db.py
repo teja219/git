@@ -65,6 +65,21 @@ def get_code(db_file, snippetId):
     finally:
         conn.close()
 
+def get_all_data_as_dataframe(db_file):
+    conn = sqlite3.connect(db_file)
+    
+    try:
+        # Execute a SELECT query to retrieve all data from the 'codes' table
+        df = pd.read_sql_query('SELECT * FROM codes', conn)
+        return df
+    except sqlite3.Error as e:
+        print(f"Error occurred: {e}")
+        return None
+    finally:
+        conn.close()
+
+
+
 
 # Example usage
 if __name__ == '__main__':
