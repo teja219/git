@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import io
 
 def main():
     st.title("Excel Sheet Selector")
@@ -28,12 +29,7 @@ def download_data(xls, selected_sheets):
             df.to_excel(writer, sheet_name=sheet_name, index=False)
 
     excel_data.seek(0)
-    st.download_button(
-        label="Download Selected Sheets",
-        data=excel_data,
-        file_name="selected_sheets.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    )
+    return excel_data
 
 if __name__ == "__main__":
     main()
