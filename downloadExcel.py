@@ -1,42 +1,59 @@
 import streamlit as st
 import pandas as pd
-import io
+
+
+def get_sheet_names(uploaded_file):
+    """Reads sheet names from the uploaded Excel file."""
+    df = pd.read_excel(uploaded_file, sheet_name=None)
+    return list(df.keys())
+
+
+def download_selected_sheets(dataframes, sheet_names, download_path):
+    """Downloads a single Excel file containing selected sheets to the specified path."""
+    try:
+        with pd.ExcelWriter(download_path) as writer:
+            for i, sheet_name in enumerate(sheet_names):
+                dataframes[sheet_name].to_excel(writer, sheet_name=sheet_name, index=False)
+        st.success(f"Excel file downloaded to '{download_path}'")
+    except Exception as e:
+        st.error(f"Error reading sheets: {e}")
+
 
 def main():
-    st.title("Excel Sheet Selector")
+    """Main function to run the Streamlit app."""
+    st.title("Excel Sheet Downloader")
 
-    # File upload
-    uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx", "xls"])
+    uploaded_file = st.file_uploader("Choose an Excel file")
 
     if uploaded_file is not None:
-        # Read the Excel file
-        try:
-            xls = pd.ExcelFile(uploaded_file)
-            sheet_names = xls.sheet_names
-            selected_sheets = st.multiselect("Select sheets", sheet_names)
-            
-            if st.button("Download Selected Sheets"):
-                excel_data = download_data(xls, selected_sheets)
-                download_location = st.text_input("Enter download location", value="selected_sheets.xlsx")
-                st.markdown(get_binary_file_downloader_html(excel_data, download_location), unsafe_allow_html=True)
-        except Exception as e:
-            st.error(f"Error: {e}")
+        sheet_names = get_sheet_names(uploaded_file)
 
-def download_data(xls, selected_sheets):
-    # Prepare a buffer for storing the Excel data
-    excel_data = io.BytesIO()
-    with pd.ExcelWriter(excel_data, engine="xlsxwriter") as writer:
-        for sheet_name in selected_sheets:
-            df = pd.read_excel(xls, sheet_name)
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
+        if sheet_names:
+            selected_sheets = st.multiselect("Select sheets to download", sheet_names)
 
-    excel_data.seek(0)
-    return excel_data
+            if selected_sheets:
+                download_path = st.text_input("Enter download path (including filename.xlsx):")
+                download_button = st.button("Download Selected Sheets")
 
-def get_binary_file_downloader_html(bin_file, file_label='Excel File'):
-    with open(bin_file.name, 'wb') as f:
-        f.write(bin_file.read())
-    return f'<a href="data:application/octet-stream;base64,{bin_file}">Download {file_label}</a>'
+                if download_button:
+                    # Check if path is empty
+                    if download_path:
+                        try:
+                            # Read all sheets into a dictionary
+                            dataframes = {sheet_name: pd.read_excel(uploaded_file, sheet_name=sheet_name) for sheet_name in sheet_names}
+
+                            # Download only selected sheets
+                            download_selected_sheets(dataframes, selected_sheets, download_path)
+                        except Exception as e:
+                            st.error(f"Error reading sheets: {e}")
+                    else:
+                        st.warning("Please enter a download path.")
+        else:
+            st.warning("No sheets found in the uploaded file.")
+
+    else:
+        st.info("Upload an Excel file to get started.")
+
 
 if __name__ == "__main__":
     main()
