@@ -55,3 +55,5 @@ def main():
             save_excel_with_separator(combined_df, f"{file_name}.xlsx")
             st.success(f"File '{file_name}.xlsx' saved successfully!")
 
+if __name__ == "__main__":
+    main()
