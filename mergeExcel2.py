@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import Border, Side
 
 def merge_excel_files(excel_files):
     combined_dataframes = []
@@ -9,6 +11,23 @@ def merge_excel_files(excel_files):
             combined_dataframes.append(df)
     combined_df = pd.concat(combined_dataframes, ignore_index=True)
     return combined_df
+
+def save_excel_with_separator(df, filename):
+    writer = pd.ExcelWriter(filename, engine='xlsxwriter')
+    df.to_excel(writer, index=False, header=True, startrow=0, startcol=0, sheet_name='Sheet1')
+    
+    # Accessing the workbook
+    workbook = writer.book
+    worksheet = writer.sheets['Sheet1']
+
+    # Adding a bold line between sheets
+    border = Border(bottom=Side(style='medium'))
+    for row_num in range(len(df) + 1, len(df) + 3):
+        for col_num in range(len(df.columns) + 1):
+            cell = worksheet.cell(row=row_num, column=col_num)
+            cell.border = border
+    
+    writer.save()
 
 def main():
     st.title("Excel File Merger")
@@ -28,7 +47,7 @@ def main():
         st.write("Save Merged Excel File")
         file_name = st.text_input("Enter the filename for the merged Excel file (without extension):")
         if file_name:
-            st.write(combined_df.to_excel(f"{file_name}.xlsx", index=False, header=True), unsafe_allow_html=True)
+            save_excel_with_separator(combined_df, f"{file_name}.xlsx")
             st.success(f"File '{file_name}.xlsx' saved successfully!")
 
 if __name__ == "__main__":
