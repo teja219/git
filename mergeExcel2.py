@@ -15,24 +15,19 @@ def merge_excel_files(excel_files):
 def save_excel_with_separator(df, filename):
     writer = pd.ExcelWriter(filename, engine='xlsxwriter')
     df.to_excel(writer, index=False, header=True, startrow=0, startcol=0, sheet_name='Sheet1')
-    writer.save()
-
-    # Adding a bold line between sheets
-    wb = Workbook()
-    ws = wb.active
 
     # Accessing the workbook and worksheet
-    wb = openpyxl.load_workbook(filename)
-    worksheet = wb.active
+    wb = writer.book
+    ws = writer.sheets['Sheet1']
 
     # Adding a bold line between sheets
     border = Border(bottom=Side(style='medium'))
-    for row_num in range(len(df) + 1, len(df) + 3):
-        for col_num in range(len(df.columns) + 1):
-            cell = worksheet.cell(row=row_num, column=col_num)
+    for row_num in range(len(df) + 2, len(df) + 4):
+        for col_num in range(len(df.columns)):
+            cell = ws.cell(row=row_num, column=col_num + 1)
             cell.border = border
     
-    wb.save(filename)
+    writer.save()
 
 def main():
     st.title("Excel File Merger")
