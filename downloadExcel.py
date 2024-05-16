@@ -16,7 +16,9 @@ def main():
             selected_sheets = st.multiselect("Select sheets", sheet_names)
             
             if st.button("Download Selected Sheets"):
-                download_data(xls, selected_sheets)
+                excel_data = download_data(xls, selected_sheets)
+                download_location = st.text_input("Enter download location", value="selected_sheets.xlsx")
+                st.markdown(get_binary_file_downloader_html(excel_data, download_location), unsafe_allow_html=True)
         except Exception as e:
             st.error(f"Error: {e}")
 
@@ -30,6 +32,11 @@ def download_data(xls, selected_sheets):
 
     excel_data.seek(0)
     return excel_data
+
+def get_binary_file_downloader_html(bin_file, file_label='Excel File'):
+    with open(bin_file.name, 'wb') as f:
+        f.write(bin_file.read())
+    return f'<a href="data:application/octet-stream;base64,{bin_file}">Download {file_label}</a>'
 
 if __name__ == "__main__":
     main()
