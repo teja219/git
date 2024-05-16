@@ -19,7 +19,8 @@ def main():
     """Main function to run the Streamlit app."""
     st.title("Excel Sheet Merger (All Sheets into One)")
 
-    uploaded_files = st.file_uploader("Choose Excel files to merge", type='multiple')
+    allowed_extensions = ['xlsx', 'xls']  # Allow both xlsx and xls files
+    uploaded_files = st.file_uploader("Choose Excel files to merge", type='multiple', accept_extensions=allowed_extensions)
 
     if uploaded_files:
         if len(uploaded_files) > 0:
