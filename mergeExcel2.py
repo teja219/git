@@ -19,7 +19,7 @@ def main():
     """Main function to run the Streamlit app."""
     st.title("Excel Sheet Merger (All Sheets into One)")
 
-    uploaded_files = st.file_uploader("Choose Excel files to merge", accept_multiple=True)
+    uploaded_files = st.file_uploader("Choose Excel files to merge", type='multiple')
 
     if uploaded_files:
         if len(uploaded_files) > 0:
